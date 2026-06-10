@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>관리자 - API 설정</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #667eea;
+            margin-bottom: 30px;
+            text-align: center;
+            font-size: 28px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        input[type="text"]:focus,
+        input[type="password"]:focus {
+            border-color: #764ba2;
+            box-shadow: 0 0 10px rgba(118, 75, 162, 0.3);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+        }
+
+        button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-save {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-save:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-reset {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .btn-reset:hover {
+            background: #e0e0e0;
+        }
+
+        .btn-back {
+            background: #ff6b6b;
+            color: white;
+            margin-top: 20px;
+            width: 100%;
+        }
+
+        .btn-back:hover {
+            background: #ff5252;
+        }
+
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            text-align: center;
+            font-weight: bold;
+            display: none;
+        }
+
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            display: block;
+        }
+
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            display: block;
+        }
+
+        .info-box {
+            background: #e7f3ff;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin-bottom: 25px;
+            border-radius: 5px;
+            font-size: 12px;
+            color: #333;
+        }
+
+        .info-box strong {
+            color: #667eea;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⚙️ API 설정</h1>
+
+        <div class="info-box">
+            <strong>📝 설명:</strong><br>
+            API 키를 입력하면 자동으로 저장됩니다.<br>
+            포탈 페이지에서 실시간 데이터를 받아옵니다.
+        </div>
+
+        <form id="apiForm">
+            <div class="form-group">
+                <label for="newsApiKey">📰 NewsAPI 키</label>
+                <input
+                    type="text"
+                    id="newsApiKey"
+                    placeholder="NewsAPI 키 입력"
+                    value=""
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="stockApiKey">📈 Alpha Vantage 키</label>
+                <input
+                    type="text"
+                    id="stockApiKey"
+                    placeholder="Alpha Vantage 키 입력"
+                    value=""
+                >
+            </div>
+
+            <div class="button-group">
+                <button type="button" class="btn-save" onclick="saveKeys()">💾 저장</button>
+                <button type="button" class="btn-reset" onclick="resetKeys()">🔄 초기화</button>
+            </div>
+
+            <div id="status" class="status"></div>
+        </form>
+
+        <button class="btn-back" onclick="goToPortal()">← 포탈로 돌아가기</button>
+    </div>
+
+    <script>
+        // 페이지 로드 시 저장된 키 불러오기
+        function loadKeys() {
+            const newsKey = localStorage.getItem('NEWS_API_KEY');
+            const stockKey = localStorage.getItem('STOCK_API_KEY');
+
+            if (newsKey) {
+                document.getElementById('newsApiKey').value = newsKey;
+            }
+            if (stockKey) {
+                document.getElementById('stockApiKey').value = stockKey;
+            }
+        }
+
+        // 키 저장
+        function saveKeys() {
+            const newsKey = document.getElementById('newsApiKey').value.trim();
+            const stockKey = document.getElementById('stockApiKey').value.trim();
+
+            if (!newsKey && !stockKey) {
+                showStatus('최소 하나의 API 키를 입력해주세요.', 'error');
+                return;
+            }
+
+            if (newsKey) {
+                localStorage.setItem('NEWS_API_KEY', newsKey);
+            }
+            if (stockKey) {
+                localStorage.setItem('STOCK_API_KEY', stockKey);
+            }
+
+            showStatus('✅ API 키가 저장되었습니다! 포탈 페이지를 새로고침하세요.', 'success');
+        }
+
+        // 키 초기화
+        function resetKeys() {
+            if (confirm('모든 API 키를 삭제하겠습니까?')) {
+                localStorage.removeItem('NEWS_API_KEY');
+                localStorage.removeItem('STOCK_API_KEY');
+                document.getElementById('newsApiKey').value = '';
+                document.getElementById('stockApiKey').value = '';
+                showStatus('⚠️ API 키가 삭제되었습니다.', 'error');
+            }
+        }
+
+        // 상태 메시지 표시
+        function showStatus(message, type) {
+            const statusEl = document.getElementById('status');
+            statusEl.textContent = message;
+            statusEl.className = 'status ' + type;
+            setTimeout(() => {
+                statusEl.className = 'status';
+            }, 5000);
+        }
+
+        // 포탈로 이동
+        function goToPortal() {
+            window.location.href = 'portal.html';
+        }
+
+        // 초기 로드
+        window.onload = loadKeys;
+    </script>
+</body>
+</html>

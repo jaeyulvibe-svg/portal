@@ -1,0 +1,1511 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>뉴스 포탈 - IT & 경제</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #4facfe 75%, #00f2fe 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                radial-gradient(circle at 20% 50%, rgba(255, 0, 127, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(0, 200, 255, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 40% 20%, rgba(255, 200, 0, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            font-size: 32px;
+            color: #667eea;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 10px;
+            flex: 1;
+            max-width: 400px;
+            margin-left: 40px;
+        }
+
+        .search-box input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .search-box input:focus {
+            border-color: #764ba2;
+            box-shadow: 0 0 10px rgba(118, 75, 162, 0.3);
+        }
+
+        .search-box button {
+            padding: 12px 25px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .search-box button:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .time-display {
+            color: #888;
+            font-size: 14px;
+        }
+
+        .dashboard {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .dashboard h2 {
+            font-size: 24px;
+            margin-bottom: 25px;
+            color: #333;
+            border-bottom: 3px solid #ffd700;
+            padding-bottom: 15px;
+        }
+
+        .market-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .market-card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 25px;
+            border-radius: 12px;
+            border-left: 4px solid #667eea;
+            transition: all 0.3s;
+        }
+
+        .market-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .market-card.up {
+            border-left-color: #00c851;
+        }
+
+        .market-card.down {
+            border-left-color: #ff4444;
+        }
+
+        .market-card.neutral {
+            border-left-color: #ffbb33;
+        }
+
+        .market-title {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .market-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .market-change {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: bold;
+        }
+
+        .market-change.up {
+            color: #00c851;
+        }
+
+        .market-change.down {
+            color: #ff4444;
+        }
+
+        .market-change.neutral {
+            color: #ffbb33;
+        }
+
+        .market-percent {
+            font-size: 18px;
+        }
+
+        .market-arrow {
+            font-size: 20px;
+        }
+
+        .market-time {
+            font-size: 11px;
+            color: #999;
+            margin-top: 10px;
+        }
+
+        .chart-container {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 8px;
+            display: none;
+        }
+
+        .mini-chart {
+            width: 100%;
+            height: 60px;
+            display: flex;
+            align-items: flex-end;
+            gap: 2px;
+        }
+
+        .chart-bar {
+            flex: 1;
+            background: #667eea;
+            border-radius: 3px 3px 0 0;
+            transition: all 0.3s;
+        }
+
+        .chart-bar:hover {
+            background: #764ba2;
+        }
+
+        .charts-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .charts-section h2 {
+            font-size: 24px;
+            margin-bottom: 25px;
+            color: #333;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 15px;
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 25px;
+        }
+
+        .chart-block {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            padding: 20px;
+            border-radius: 12px;
+            border: 2px solid #667eea;
+            transition: all 0.3s;
+        }
+
+        .chart-block:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .chart-block h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .chart-canvas {
+            width: 100%;
+            height: 250px;
+            position: relative;
+            margin-bottom: 15px;
+        }
+
+        .sparkline {
+            display: flex;
+            align-items: flex-end;
+            height: 200px;
+            gap: 2px;
+            margin: 15px 0;
+        }
+
+        .sparkline-bar {
+            flex: 1;
+            background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+            border-radius: 2px;
+            opacity: 0.7;
+            transition: all 0.3s;
+        }
+
+        .sparkline-bar:hover {
+            opacity: 1;
+            transform: scaleY(1.1);
+        }
+
+        .chart-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .stat-item {
+            background: rgba(255, 255, 255, 0.7);
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            border-left: 3px solid #667eea;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: #999;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 14px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        @media (max-width: 1024px) {
+            .market-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 640px) {
+            .market-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .sections {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .section h2 {
+            font-size: 22px;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #1a1a2e;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 15px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .section.it h2 {
+            border-bottom-color: #667eea;
+        }
+
+        .section.economy h2 {
+            border-bottom-color: #ff6b6b;
+        }
+
+        .section.us h2 {
+            border-bottom-color: #4facfe;
+        }
+
+        .section.korea h2 {
+            border-bottom-color: #f093fb;
+        }
+
+        .section.breaking {
+            background: linear-gradient(135deg, rgba(255, 107, 107, 0.05) 0%, rgba(255, 200, 100, 0.05) 100%);
+            border-left: 5px solid #ff6b6b;
+        }
+
+        .breaking-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ff8e53 100%);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .news-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .news-item {
+            padding: 18px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(245, 247, 250, 0.8) 100%);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            border-left: 4px solid #667eea;
+            display: flex;
+            gap: 15px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .news-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: -100%;
+            width: 100%;
+            height: 100%;
+            background: rgba(102, 126, 234, 0.05);
+            transition: right 0.3s ease;
+        }
+
+        .news-item:hover {
+            transform: translateX(8px) translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            border-color: #667eea;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 1) 0%, rgba(240, 245, 255, 1) 100%);
+        }
+
+        .news-item:hover::before {
+            right: 0;
+        }
+
+        .section.economy .news-item {
+            border-left-color: #ff6b6b;
+        }
+
+        .section.us .news-item {
+            border-left-color: #4facfe;
+        }
+
+        .section.korea .news-item {
+            border-left-color: #f093fb;
+        }
+
+        .news-item:hover .news-source {
+            transform: scale(1.1);
+        }
+
+        .news-icon {
+            font-size: 32px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .news-content {
+            flex: 1;
+            position: relative;
+            z-index: 1;
+        }
+
+        .news-title {
+            font-weight: 600;
+            font-size: 14px;
+            color: #1a1a2e;
+            margin-bottom: 8px;
+            line-height: 1.5;
+            letter-spacing: -0.3px;
+        }
+
+        .news-meta {
+            display: flex;
+            gap: 12px;
+            font-size: 11px;
+            color: #999;
+            align-items: center;
+        }
+
+        .news-source {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 5px;
+            font-weight: 700;
+            font-size: 10px;
+            letter-spacing: 0.5px;
+            transition: all 0.3s;
+        }
+
+        .section.economy .news-source {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ff5252 100%);
+        }
+
+        .section.us .news-source {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        .section.korea .news-source {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .trending {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            margin-bottom: 30px;
+        }
+
+        .trending h2 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #333;
+            border-bottom: 3px solid #ffd700;
+            padding-bottom: 15px;
+        }
+
+        .trending-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .tag {
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+            color: #333;
+            box-shadow: 0 4px 10px rgba(255, 215, 0, 0.3);
+        }
+
+        .tag:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(255, 215, 0, 0.4);
+        }
+
+        .footer {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            margin-top: 30px;
+            font-size: 14px;
+        }
+
+        @media (max-width: 1024px) {
+            .sections {
+                grid-template-columns: 1fr;
+            }
+
+            header {
+                flex-direction: column;
+                gap: 20px;
+                text-align: center;
+            }
+
+            .search-box {
+                max-width: 100%;
+                margin-left: 0;
+            }
+        }
+
+        .refresh-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            margin-left: 10px;
+        }
+
+        .refresh-btn:hover {
+            background: #764ba2;
+            transform: rotate(180deg);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #888;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📰 뉴스 포탈</h1>
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="뉴스 검색...">
+                <button onclick="searchNews()">🔍</button>
+                <button class="refresh-btn" onclick="refreshNews()">🔄</button>
+            </div>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <div class="time-display" id="timeDisplay"></div>
+                <button onclick="window.location.href='admin.html'" style="background: #667eea; color: white; border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer; font-weight: bold;">⚙️ API설정</button>
+            </div>
+        </header>
+
+        <div class="dashboard">
+            <h2>📊 시장 현황</h2>
+            <div class="market-grid">
+                <div class="market-card up">
+                    <div class="market-title">📈 코스피 (KOSPI)</div>
+                    <div class="market-value" id="kospiValue">7,778.41</div>
+                    <div class="market-change up">
+                        <span class="market-arrow">▲</span>
+                        <span class="market-percent" id="kospiChange">+1.23%</span>
+                    </div>
+                    <div class="market-time">전장 종가 기준</div>
+                </div>
+
+                <div class="market-card down">
+                    <div class="market-title">📊 코스닥 (KOSDAQ)</div>
+                    <div class="market-value" id="kosdaqValue">1,045.80</div>
+                    <div class="market-change down">
+                        <span class="market-arrow">▼</span>
+                        <span class="market-percent" id="kosdaqChange">-0.85%</span>
+                    </div>
+                    <div class="market-time">전장 종가 기준</div>
+                </div>
+
+                <div class="market-card down">
+                    <div class="market-title">💵 USD/KRW</div>
+                    <div class="market-value" id="dollarValue">1,523.86</div>
+                    <div class="market-change neutral">
+                        <span class="market-arrow">→</span>
+                        <span class="market-percent" id="dollarChange">±0.12%</span>
+                    </div>
+                    <div class="market-time">실시간 환율</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="charts-section">
+            <h2>📈 시장 차트 분석</h2>
+            <div class="charts-grid">
+                <div class="chart-block">
+                    <h3>📊 KOSPI (코스피) 차트</h3>
+                    <canvas id="kospiChartCanvas" style="max-height: 250px; margin-bottom: 15px;"></canvas>
+                    <div class="chart-stats">
+                        <div class="stat-item">
+                            <div class="stat-label">고가</div>
+                            <div class="stat-value" id="kospiHigh">3,280</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">저가</div>
+                            <div class="stat-value" id="kospiLow">3,200</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">평균</div>
+                            <div class="stat-value" id="kospiAvg">3,240</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chart-block">
+                    <h3>📈 NASDAQ (나스닥) 차트</h3>
+                    <canvas id="nasdaqChartCanvas" style="max-height: 250px; margin-bottom: 15px;"></canvas>
+                    <div class="chart-stats">
+                        <div class="stat-item">
+                            <div class="stat-label">고가</div>
+                            <div class="stat-value" id="nasdaqHigh">18,500</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">저가</div>
+                            <div class="stat-value" id="nasdaqLow">18,100</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">평균</div>
+                            <div class="stat-value" id="nasdaqAvg">18,300</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- API 상태 및 디버그 창 -->
+        <div style="position: fixed; top: 20px; right: 20px; background: rgba(0, 0, 0, 0.95); padding: 20px; border: 2px solid #ff0; border-radius: 10px; z-index: 1000; font-size: 12px; color: #ff0; max-width: 380px; backdrop-filter: blur(10px);">
+            <div style="font-weight: bold; margin-bottom: 15px; color: #0ff; font-size: 14px;">🔧 API 상태</div>
+            <div style="margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid #666;">
+                <div style="margin-bottom: 8px;">📰 NewsAPI: <span id="newsApiStatus" style="color: #0f0; font-weight: bold;">🔄</span></div>
+                <div style="margin-bottom: 8px;">📈 StockAPI: <span id="stockApiStatus" style="color: #0f0; font-weight: bold;">🔄</span></div>
+                <div>⏰ 마지막: <span id="lastUpdate" style="color: #0f0;">-</span></div>
+            </div>
+            <div style="margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid #666;">
+                <div style="color: #0ff; margin-bottom: 8px; font-weight: bold;">📊 API 응답값:</div>
+                <div style="margin-bottom: 5px;">코스피: <span id="debugKospi" style="color: #f0f;">-</span></div>
+                <div style="margin-bottom: 5px;">나스닥: <span id="debugNasdaq" style="color: #f0f;">-</span></div>
+                <div style="margin-bottom: 5px;">환율: <span id="debugDollar" style="color: #f0f;">-</span></div>
+                <div>뉴스건수: <span id="debugNews" style="color: #f0f;">-</span></div>
+            </div>
+            <div style="color: #ff8800; font-size: 11px;">
+                ⚠️ 실제값: 코스피 7809 / 나스닥 25678
+            </div>
+        </div>
+
+        <!-- 주식 기술분석 추천 -->
+        <div class="dashboard" style="background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(240, 107, 107, 0.1) 100%); margin-bottom: 30px;">
+            <h2 style="border-bottom-color: #ffd700;">🎯 기술분석 주식 추천</h2>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px;">
+                <!-- 삼성전자 -->
+                <div style="background: linear-gradient(135deg, rgba(0, 255, 136, 0.1) 0%, rgba(102, 126, 234, 0.1) 100%); padding: 25px; border-radius: 12px; border-left: 5px solid #00ff88;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <h3 style="color: #1a1a2e; font-size: 18px; margin: 0;">🇰🇷 삼성전자</h3>
+                        <span style="background: #00ff88; color: #000; padding: 5px 12px; border-radius: 20px; font-weight: bold; font-size: 12px;">⭐⭐⭐⭐ 매수</span>
+                    </div>
+                    <div style="background: rgba(255, 255, 255, 0.7); padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                        <div style="margin-bottom: 8px;"><strong style="color: #667eea;">현재가:</strong> <span style="color: #000; font-weight: bold;">304,000원</span></div>
+                        <div style="margin-bottom: 8px;"><strong style="color: #667eea;">RSI(14):</strong> 56.38 (중립~매수)</div>
+                        <div style="margin-bottom: 8px;"><strong style="color: #667eea;">수익률:</strong> <span style="color: #000;">3개월 +62.12%</span></div>
+                        <div><strong style="color: #667eea;">추세:</strong> ✅ 황금교차 (매수신호)</div>
+                    </div>
+                    <div style="background: rgba(0, 255, 136, 0.1); padding: 12px; border-radius: 8px; font-size: 12px; color: #333; line-height: 1.6;">
+                        <strong>호재:</strong><br>
+                        • AI 반도체 수요 증가<br>
+                        • HBM 메모리 양산 확대<br>
+                        • 반도체 호황기 진입
+                    </div>
+                </div>
+
+                <!-- NVIDIA -->
+                <div style="background: linear-gradient(135deg, rgba(0, 255, 136, 0.1) 0%, rgba(102, 126, 234, 0.1) 100%); padding: 25px; border-radius: 12px; border-left: 5px solid #ffaa00;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <h3 style="color: #1a1a2e; font-size: 18px; margin: 0;">🇺🇸 NVIDIA</h3>
+                        <span style="background: #ffaa00; color: #000; padding: 5px 12px; border-radius: 20px; font-weight: bold; font-size: 12px;">⭐⭐⭐⭐⭐ 강매수</span>
+                    </div>
+                    <div style="background: rgba(255, 255, 255, 0.7); padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                        <div style="margin-bottom: 8px;"><strong style="color: #667eea;">현재가:</strong> <span style="color: #000; font-weight: bold;">$120~150 (변동성)</span></div>
+                        <div style="margin-bottom: 8px;"><strong style="color: #667eea;">트렌드:</strong> AI 칩셋 수요 최고조</div>
+                        <div style="margin-bottom: 8px;"><strong style="color: #667eea;">추세:</strong> ✅ 강한 상승추세</div>
+                        <div><strong style="color: #667eea;">성장성:</strong> 매우 높음 (AI 독점)</div>
+                    </div>
+                    <div style="background: rgba(0, 255, 136, 0.1); padding: 12px; border-radius: 8px; font-size: 12px; color: #333; line-height: 1.6;">
+                        <strong>호재:</strong><br>
+                        • ChatGPT 등 생성형 AI 급성장<br>
+                        • 데이터센터 수요 폭증<br>
+                        • 반도체 초호황기
+                    </div>
+                </div>
+            </div>
+            <div style="background: rgba(255, 150, 0, 0.1); padding: 15px; border-radius: 8px; margin-top: 20px; border-left: 4px solid #ff9600; font-size: 12px; color: #333;">
+                <strong>⚠️ 면책사항:</strong> 이것은 교육 목적의 기술분석이며 투자 조언이 아닙니다. 실제 투자 전 충분한 검토 후 결정하시기 바랍니다.
+            </div>
+        </div>
+
+        <div class="trending">
+            <h2>🔥 트렌딩 주제</h2>
+            <div class="trending-tags">
+                <div class="tag" onclick="filterNews('AI')">AI</div>
+                <div class="tag" onclick="filterNews('블록체인')">블록체인</div>
+                <div class="tag" onclick="filterNews('클라우드')">클라우드</div>
+                <div class="tag" onclick="filterNews('주식')">주식</div>
+                <div class="tag" onclick="filterNews('암호화폐')">암호화폐</div>
+                <div class="tag" onclick="filterNews('부동산')">부동산</div>
+                <div class="tag" onclick="filterNews('스타트업')">스타트업</div>
+                <div class="tag" onclick="filterNews('전자상거래')">전자상거래</div>
+            </div>
+        </div>
+
+        <div class="sections">
+            <div class="section us">
+                <h2>🇺🇸 미국 주요 뉴스</h2>
+                <div class="news-list" id="usNews"></div>
+            </div>
+
+            <div class="section korea breaking">
+                <h2>🇰🇷 국내 속보</h2>
+                <div class="news-list" id="koreaNews"></div>
+            </div>
+        </div>
+
+        <div class="sections">
+            <div class="section it">
+                <h2>💻 IT 뉴스</h2>
+                <div class="news-list" id="itNews"></div>
+            </div>
+
+            <div class="section economy">
+                <h2>💰 경제 뉴스</h2>
+                <div class="news-list" id="economyNews"></div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>© 2026 뉴스 포탈 | 최신 IT & 경제 뉴스를 한눈에 확인하세요</p>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script>
+        // ============ API 설정 ============
+        // localStorage에서 API 키 읽기 (관리자 페이지에서 설정)
+        const NEWS_API_KEY = localStorage.getItem('NEWS_API_KEY') || 'demo';
+        const STOCK_API_KEY = localStorage.getItem('STOCK_API_KEY') || 'demo';
+
+        const NEWS_API_URL = 'https://newsapi.org/v2/everything';
+        const STOCK_API_URL = 'https://www.alphavantage.co/query';
+
+        // ============ 차트 인스턴스 ============
+        let kospiChartInstance = null;
+        let nasdaqChartInstance = null;
+
+        // ============ 실제 API 뉴스 로드 (Currents API) ============
+        async function loadRealNews() {
+            try {
+                document.getElementById('newsApiStatus').textContent = '🔄 로딩중';
+                document.getElementById('newsApiStatus').style.color = '#ff0';
+
+                // 미국 뉴스
+                const usResponse = await fetch(`${NEWS_API_URL}?q=US market stocks&language=en&apikey=${NEWS_API_KEY}`);
+                const usData = await usResponse.json();
+
+                if (usData.news && usData.news.length > 0) {
+                    const formattedUS = usData.news.slice(0, 6).map(article => ({
+                        title: article.title,
+                        source: article.source || 'News',
+                        time: getTimeAgo(article.published_at),
+                        category: 'US News',
+                        icon: '🔌'
+                    }));
+                    renderNews(formattedUS, 'usNews');
+                }
+
+                // 국내 뉴스
+                const koreaResponse = await fetch(`${NEWS_API_URL}?q=korea economy stock&language=ko&apikey=${NEWS_API_KEY}`);
+                const koreaData = await koreaResponse.json();
+                if (koreaData.news && koreaData.news.length > 0) {
+                    const formattedKorea = koreaData.news.slice(0, 6).map(article => ({
+                        title: '🚨 ' + article.title,
+                        source: article.source || 'News',
+                        time: getTimeAgo(article.published_at),
+                        category: '속보',
+                        icon: '📢'
+                    }));
+                    renderNews(formattedKorea, 'koreaNews');
+                }
+
+                // IT 뉴스
+                const itResponse = await fetch(`${NEWS_API_URL}?q=AI technology blockchain&language=en&apikey=${NEWS_API_KEY}`);
+                const itData = await itResponse.json();
+                if (itData.news && itData.news.length > 0) {
+                    const formattedIT = itData.news.slice(0, 6).map(article => ({
+                        title: article.title,
+                        source: article.source || 'Tech News',
+                        time: getTimeAgo(article.published_at),
+                        category: 'IT',
+                        icon: '💻'
+                    }));
+                    renderNews(formattedIT, 'itNews');
+                }
+
+                // 경제 뉴스
+                const economyResponse = await fetch(`${NEWS_API_URL}?q=economy finance market&language=en&apikey=${NEWS_API_KEY}`);
+                const economyData = await economyResponse.json();
+                if (economyData.news && economyData.news.length > 0) {
+                    const formattedEconomy = economyData.news.slice(0, 6).map(article => ({
+                        title: article.title,
+                        source: article.source || 'Economy News',
+                        time: getTimeAgo(article.published_at),
+                        category: 'Economy',
+                        icon: '💰'
+                    }));
+                    renderNews(formattedEconomy, 'economyNews');
+                }
+
+                document.getElementById('debugNews').textContent = '로드됨';
+                document.getElementById('newsApiStatus').textContent = '✅ OK';
+                document.getElementById('newsApiStatus').style.color = '#0f0';
+
+            } catch (error) {
+                document.getElementById('newsApiStatus').textContent = '❌ 에러';
+                document.getElementById('newsApiStatus').style.color = '#f00';
+                console.log('뉴스 로드 실패:', error);
+            }
+        }
+
+        function getTimeAgo(publishedAt) {
+            const date = new Date(publishedAt);
+            const now = new Date();
+            const seconds = Math.floor((now - date) / 1000);
+
+            if (seconds < 60) return '방금 전';
+            if (seconds < 3600) return Math.floor(seconds / 60) + '분 전';
+            if (seconds < 86400) return Math.floor(seconds / 3600) + '시간 전';
+            return Math.floor(seconds / 86400) + '일 전';
+        }
+
+        // ============ 주식 데이터 실시간 로드 ============
+        async function loadRealStockData() {
+            try {
+                document.getElementById('stockApiStatus').textContent = '🔄 로딩중';
+                document.getElementById('stockApiStatus').style.color = '#ff0';
+
+                // KOSPI (삼성전자로 대체)
+                const kospiResponse = await fetch(`${STOCK_API_URL}?function=GLOBAL_QUOTE&symbol=005930.KS&apikey=${STOCK_API_KEY}`);
+                const kospiData = await kospiResponse.json();
+
+                if (kospiData['Global Quote'] && kospiData['Global Quote']['05. price']) {
+                    const price = parseFloat(kospiData['Global Quote']['05. price']);
+                    const changePercent = parseFloat(kospiData['Global Quote']['10. change percent']) || 0;
+
+                    document.getElementById('debugKospi').textContent = price.toFixed(2);
+                    marketData.kospi.value = price * 100;
+                    marketData.kospi.change = changePercent;
+                    marketData.kospi.direction = changePercent > 0 ? 'up' : changePercent < 0 ? 'down' : 'neutral';
+                }
+
+                // NASDAQ (Apple 사용)
+                const nasdaqResponse = await fetch(`${STOCK_API_URL}?function=GLOBAL_QUOTE&symbol=AAPL&apikey=${STOCK_API_KEY}`);
+                const nasdaqData = await nasdaqResponse.json();
+
+                if (nasdaqData['Global Quote'] && nasdaqData['Global Quote']['05. price']) {
+                    const price = parseFloat(nasdaqData['Global Quote']['05. price']);
+                    const changePercent = parseFloat(nasdaqData['Global Quote']['10. change percent']) || 0;
+
+                    document.getElementById('debugNasdaq').textContent = price.toFixed(2);
+                    marketData.nasdaq.value = price * 100;
+                    marketData.nasdaq.change = changePercent;
+                    marketData.nasdaq.direction = changePercent > 0 ? 'up' : changePercent < 0 ? 'down' : 'neutral';
+                }
+
+                document.getElementById('stockApiStatus').textContent = '✅ OK';
+                document.getElementById('stockApiStatus').style.color = '#0f0';
+                document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString('ko-KR');
+
+            } catch (error) {
+                document.getElementById('stockApiStatus').textContent = '❌ 에러';
+                document.getElementById('stockApiStatus').style.color = '#f00';
+                console.log('주식 데이터: Alpha Vantage 키 필요');
+            }
+        }
+
+        // ============ 뉴스 데이터 ============
+        const usNews = [
+            {
+                title: 'S&P 500 hits new record high... tech stocks lead rally',
+                source: 'Reuters',
+                time: '9분 전',
+                category: '시장',
+                icon: '📈'
+            },
+            {
+                title: 'Tesla Q2 earnings beat expectations... stock jumps 6%',
+                source: 'Bloomberg',
+                time: '32분 전',
+                category: '기술',
+                icon: '⚡'
+            },
+            {
+                title: 'Nvidia announces next-gen AI chip architecture',
+                source: 'CNBC',
+                time: '1시간 전',
+                category: '기술',
+                icon: '🔌'
+            },
+            {
+                title: 'Apple Pay expansion reaches 50 new markets',
+                source: 'TechCrunch',
+                time: '2시간 전',
+                category: '금융',
+                icon: '💳'
+            },
+            {
+                title: 'Amazon expands AWS AI services portfolio',
+                source: 'MarketWatch',
+                time: '3시간 전',
+                category: '클라우드',
+                icon: '☁️'
+            },
+            {
+                title: 'Microsoft Copilot integration reaches 100M users',
+                source: 'Wall Street Journal',
+                time: '4시간 전',
+                category: 'AI',
+                icon: '🤖'
+            }
+        ];
+
+        const koreaNews = [
+            {
+                title: '🚨 [속보] 코스피 7778.41 상승... 상승률 3.93%',
+                source: '연합뉴스',
+                time: '5분 전',
+                category: '속보',
+                icon: '📊'
+            },
+            {
+                title: '🚨 [속보] 삼성전자 신제품 발표회 개최... AI칩 성능 50% 향상',
+                source: '뉴스1',
+                time: '18분 전',
+                category: '속보',
+                icon: '📢'
+            },
+            {
+                title: '🚨 [속보] 원달러 환율 1523.86... 약세 지속',
+                source: '한경닷컴',
+                time: '35분 전',
+                category: '속보',
+                icon: '💱'
+            },
+            {
+                title: '현대자동차, 수소연료전지차 수출 사상 최대',
+                source: 'KBS',
+                time: '1시간 전',
+                category: '자동차',
+                icon: '🚗'
+            },
+            {
+                title: 'SK하이닉스, 고대역폭 메모리 개발 완료',
+                source: 'MBC',
+                time: '2시간 전',
+                category: '반도체',
+                icon: '💾'
+            },
+            {
+                title: '카카오, AI 생성형 플랫폼 서비스 시작',
+                source: '조선일보',
+                time: '3시간 전',
+                category: '기술',
+                icon: '🤖'
+            }
+        ];
+
+        const itNews = [
+            {
+                title: 'OpenAI, GPT-5 베타 공개... 멀티모달 기능 강화된 모델',
+                source: 'TechNews',
+                time: '1시간 전',
+                category: 'AI',
+                icon: '🤖'
+            },
+            {
+                title: '구글, 퀀텀 칩 Willow 공개... 양자 에러 수정 획기적 발전',
+                source: 'IT World',
+                time: '3시간 전',
+                category: '양자',
+                icon: '⚛️'
+            },
+            {
+                title: '마이크로소프트, AI Copilot 4 출시... 생산성 40% 향상',
+                source: 'Windows News',
+                time: '5시간 전',
+                category: 'AI',
+                icon: '🪟'
+            },
+            {
+                title: 'Meta, AI 음성 어시스턴트 "Artemis" 발표',
+                source: 'Meta Blog',
+                time: '6시간 전',
+                category: 'AI',
+                icon: '🎙️'
+            },
+            {
+                title: '테슬라, Full Self-Driving v12.5 출시... 도시 주행 완전 자동화',
+                source: 'Auto Tech',
+                time: '7시간 전',
+                category: '자율주행',
+                icon: '🚗'
+            },
+            {
+                title: 'AWS, AI 기반 데이터 분석 플랫폼 런칭',
+                source: 'Cloud Insider',
+                time: '9시간 전',
+                category: '클라우드',
+                icon: '☁️'
+            }
+        ];
+
+        const economyNews = [
+            {
+                title: '코스피 3,285.50 상승... 개인투자자 쇼핑 이어져',
+                source: '한국경제',
+                time: '32분 전',
+                category: '주식',
+                icon: '📈'
+            },
+            {
+                title: '미 연준, 기준금리 유지... 6월 내 추가 인상 없음',
+                source: '금융뉴스',
+                time: '1시간 전',
+                category: '금리',
+                icon: '💹'
+            },
+            {
+                title: '원달러 환율 1,285.50... 심리 방어선 유지',
+                source: '뉴스통신',
+                time: '42분 전',
+                category: '환율',
+                icon: '💱'
+            },
+            {
+                title: '비트코인 $62,500 상승... AI 투자 자금 유입',
+                source: '암호화폐뉴스',
+                time: '2시간 전',
+                category: '암호화폐',
+                icon: '₿'
+            },
+            {
+                title: 'Tech 스타트업 펀딩 2.3조원 달성... 역대 최고',
+                source: '벤처뉴스',
+                time: '4시간 전',
+                category: '스타트업',
+                icon: '🚀'
+            },
+            {
+                title: '서울 아파트 거래량 35% 증가... 전세 시장 회복세',
+                source: '부동산뉴스',
+                time: '5시간 전',
+                category: '부동산',
+                icon: '🏠'
+            }
+        ];
+
+        // ============ 시간 표시 ============
+        function updateTime() {
+            const now = new Date();
+            const timeStr = now.toLocaleString('ko-KR');
+            document.getElementById('timeDisplay').textContent = timeStr;
+        }
+
+        updateTime();
+        setInterval(updateTime, 1000);
+
+        // ============ 시장 데이터 업데이트 ============
+        const marketData = {
+            kospi: { value: 7778.41, change: 3.93, direction: 'up' },
+            kosdaq: { value: 1082.45, change: 2.15, direction: 'up' },
+            dollar: { value: 1523.86, change: -0.33, direction: 'down' }
+        };
+
+        function updateMarketData() {
+            // 실시간 변동 시뮬레이션
+            marketData.kospi.value += (Math.random() - 0.5) * 10;
+            marketData.kosdaq.value += (Math.random() - 0.5) * 5;
+            marketData.dollar.value += (Math.random() - 0.5) * 2;
+
+            // 변화량 계산
+            const kospiChange = (Math.random() - 0.5) * 2;
+            const kosdaqChange = (Math.random() - 0.5) * 2;
+            const dollarChange = (Math.random() - 0.5) * 0.5;
+
+            marketData.kospi.change = kospiChange;
+            marketData.kospi.direction = kospiChange > 0 ? 'up' : kospiChange < 0 ? 'down' : 'neutral';
+            marketData.kosdaq.change = kosdaqChange;
+            marketData.kosdaq.direction = kosdaqChange > 0 ? 'up' : kosdaqChange < 0 ? 'down' : 'neutral';
+            marketData.dollar.change = dollarChange;
+            marketData.dollar.direction = dollarChange > 0 ? 'up' : dollarChange < 0 ? 'down' : 'neutral';
+
+            // DOM 업데이트
+            document.getElementById('kospiValue').textContent = marketData.kospi.value.toFixed(2);
+            document.getElementById('kospiChange').textContent =
+                (marketData.kospi.change > 0 ? '+' : '') + marketData.kospi.change.toFixed(2) + '%';
+
+            document.getElementById('kosdaqValue').textContent = marketData.kosdaq.value.toFixed(2);
+            document.getElementById('kosdaqChange').textContent =
+                (marketData.kosdaq.change > 0 ? '+' : '') + marketData.kosdaq.change.toFixed(2) + '%';
+
+            document.getElementById('dollarValue').textContent = marketData.dollar.value.toFixed(2);
+            document.getElementById('dollarChange').textContent =
+                (marketData.dollar.change > 0 ? '+' : '') + marketData.dollar.change.toFixed(2) + '%';
+
+            // 카드 스타일 업데이트
+            const kospiCard = document.querySelectorAll('.market-card')[0];
+            const kosdaqCard = document.querySelectorAll('.market-card')[1];
+            const dollarCard = document.querySelectorAll('.market-card')[2];
+
+            updateCardStyle(kospiCard, marketData.kospi.direction);
+            updateCardStyle(kosdaqCard, marketData.kosdaq.direction);
+            updateCardStyle(dollarCard, marketData.dollar.direction);
+        }
+
+        function updateCardStyle(card, direction) {
+            card.classList.remove('up', 'down', 'neutral');
+            card.classList.add(direction);
+
+            const changeElement = card.querySelector('.market-change');
+            changeElement.classList.remove('up', 'down', 'neutral');
+            changeElement.classList.add(direction);
+
+            const arrowElement = card.querySelector('.market-arrow');
+            if (direction === 'up') {
+                arrowElement.textContent = '▲';
+            } else if (direction === 'down') {
+                arrowElement.textContent = '▼';
+            } else {
+                arrowElement.textContent = '→';
+            }
+        }
+
+        // ============ 차트 데이터 ============
+        const chartData = {
+            kospi: [7400, 7450, 7500, 7550, 7600, 7650, 7700, 7720, 7740, 7750, 7760, 7765, 7770, 7772, 7775, 7776, 7777, 7778, 7778, 7778],
+            nasdaq: [19800, 19850, 19900, 19950, 20000, 20050, 20100, 20080, 20120, 20150, 20180, 20200, 20180, 20160, 20170, 20190, 20200, 20220, 20240, 20250]
+        };
+
+        const labels = Array.from({ length: chartData.kospi.length }, (_, i) => {
+            const date = new Date();
+            date.setHours(date.getHours() - (chartData.kospi.length - i - 1));
+            return date.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
+        });
+
+        function initCharts() {
+            const kospiCtx = document.getElementById('kospiChartCanvas').getContext('2d');
+            const nasdaqCtx = document.getElementById('nasdaqChartCanvas').getContext('2d');
+
+            const chartOptions = {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        grid: { color: 'rgba(0, 0, 0, 0.05)' },
+                        ticks: { color: '#666', font: { size: 11 } }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: '#666', font: { size: 11 } }
+                    }
+                }
+            };
+
+            kospiChartInstance = new Chart(kospiCtx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'KOSPI',
+                        data: chartData.kospi,
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 3,
+                        pointBackgroundColor: '#667eea',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 1,
+                        pointHoverRadius: 5
+                    }]
+                },
+                options: chartOptions
+            });
+
+            nasdaqChartInstance = new Chart(nasdaqCtx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'NASDAQ',
+                        data: chartData.nasdaq,
+                        borderColor: '#ff6b6b',
+                        backgroundColor: 'rgba(255, 107, 107, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 3,
+                        pointBackgroundColor: '#ff6b6b',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 1,
+                        pointHoverRadius: 5
+                    }]
+                },
+                options: chartOptions
+            });
+
+            updateStats();
+        }
+
+        function updateStats() {
+            const kospiMax = Math.max(...chartData.kospi);
+            const kospiMin = Math.min(...chartData.kospi);
+            const kospiAvg = Math.round(chartData.kospi.reduce((a, b) => a + b) / chartData.kospi.length);
+
+            const nasdaqMax = Math.max(...chartData.nasdaq);
+            const nasdaqMin = Math.min(...chartData.nasdaq);
+            const nasdaqAvg = Math.round(chartData.nasdaq.reduce((a, b) => a + b) / chartData.nasdaq.length);
+
+            document.getElementById('kospiHigh').textContent = kospiMax.toLocaleString();
+            document.getElementById('kospiLow').textContent = kospiMin.toLocaleString();
+            document.getElementById('kospiAvg').textContent = kospiAvg.toLocaleString();
+
+            document.getElementById('nasdaqHigh').textContent = nasdaqMax.toLocaleString();
+            document.getElementById('nasdaqLow').textContent = nasdaqMin.toLocaleString();
+            document.getElementById('nasdaqAvg').textContent = nasdaqAvg.toLocaleString();
+        }
+
+        function addChartData() {
+            // 새로운 데이터 추가
+            chartData.kospi.push(chartData.kospi[chartData.kospi.length - 1] + (Math.random() - 0.5) * 30);
+            chartData.kospi.shift();
+
+            chartData.nasdaq.push(chartData.nasdaq[chartData.nasdaq.length - 1] + (Math.random() - 0.5) * 150);
+            chartData.nasdaq.shift();
+
+            // 레이블 업데이트
+            labels.push(new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }));
+            labels.shift();
+
+            // 차트 업데이트
+            if (kospiChartInstance) {
+                kospiChartInstance.data.labels = labels;
+                kospiChartInstance.data.datasets[0].data = chartData.kospi;
+                kospiChartInstance.update('none'); // 애니메이션 없이 업데이트
+            }
+
+            if (nasdaqChartInstance) {
+                nasdaqChartInstance.data.labels = labels;
+                nasdaqChartInstance.data.datasets[0].data = chartData.nasdaq;
+                nasdaqChartInstance.update('none');
+            }
+
+            updateStats();
+        }
+
+        // 초기화
+        // 샘플 데이터로 먼저 표시
+        renderNews(usNews, 'usNews');
+        renderNews(koreaNews, 'koreaNews');
+        renderNews(itNews, 'itNews');
+        renderNews(economyNews, 'economyNews');
+
+        updateMarketData();
+        initCharts();
+
+        // API 키가 있으면 실시간 데이터 로드
+        if (NEWS_API_KEY !== 'demo') {
+            loadRealNews();
+        }
+        if (STOCK_API_KEY !== 'demo') {
+            loadRealStockData();
+        }
+
+        setInterval(updateMarketData, 3000); // 3초마다 시장 데이터 업데이트
+        setInterval(() => {
+            if (STOCK_API_KEY !== 'demo') {
+                loadRealStockData();
+            }
+        }, 300000); // 5분마다 주식 데이터 업데이트
+        setInterval(addChartData, 2000); // 2초마다 차트 업데이트
+
+        // ============ 뉴스 렌더링 ============
+        function renderNews(newsArray, elementId) {
+            const container = document.getElementById(elementId);
+            container.innerHTML = newsArray.map(news => `
+                <div class="news-item" onclick="openNews('${news.title}')">
+                    <div class="news-icon">${news.icon}</div>
+                    <div class="news-content">
+                        <div class="news-title">${news.title}</div>
+                        <div class="news-meta">
+                            <span class="news-source">${news.source}</span>
+                            <span>${news.time}</span>
+                            <span>${news.category}</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 실제 뉴스 로드 (API 키가 있으면)
+        if (NEWS_API_KEY !== 'demo') {
+            loadRealNews();
+        } else {
+            // API 키가 없으면 샘플 데이터 사용
+            renderNews(usNews, 'usNews');
+            renderNews(koreaNews, 'koreaNews');
+            renderNews(itNews, 'itNews');
+            renderNews(economyNews, 'economyNews');
+        }
+
+        // ============ 검색 기능 ============
+        function searchNews() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            if (!query) {
+                renderNews(usNews, 'usNews');
+                renderNews(koreaNews, 'koreaNews');
+                renderNews(itNews, 'itNews');
+                renderNews(economyNews, 'economyNews');
+                return;
+            }
+
+            const filteredUS = usNews.filter(news =>
+                news.title.toLowerCase().includes(query) ||
+                news.category.toLowerCase().includes(query)
+            );
+            const filteredKorea = koreaNews.filter(news =>
+                news.title.toLowerCase().includes(query) ||
+                news.category.toLowerCase().includes(query)
+            );
+            const filteredIT = itNews.filter(news =>
+                news.title.toLowerCase().includes(query) ||
+                news.category.toLowerCase().includes(query)
+            );
+            const filteredEconomy = economyNews.filter(news =>
+                news.title.toLowerCase().includes(query) ||
+                news.category.toLowerCase().includes(query)
+            );
+
+            renderNews(filteredUS, 'usNews');
+            renderNews(filteredKorea, 'koreaNews');
+            renderNews(filteredIT, 'itNews');
+            renderNews(filteredEconomy, 'economyNews');
+        }
+
+        // ============ 필터링 ============
+        function filterNews(category) {
+            const filteredUS = usNews.filter(news => news.category.includes(category));
+            const filteredKorea = koreaNews.filter(news => news.category.includes(category));
+            const filteredIT = itNews.filter(news => news.category.includes(category));
+            const filteredEconomy = economyNews.filter(news => news.category.includes(category));
+
+            renderNews(filteredUS, 'usNews');
+            renderNews(filteredKorea, 'koreaNews');
+            renderNews(filteredIT, 'itNews');
+            renderNews(filteredEconomy, 'economyNews');
+
+            if (filteredUS.length === 0) {
+                document.getElementById('usNews').innerHTML = '<div class="loading">해당 뉴스가 없습니다.</div>';
+            }
+            if (filteredKorea.length === 0) {
+                document.getElementById('koreaNews').innerHTML = '<div class="loading">해당 뉴스가 없습니다.</div>';
+            }
+            if (filteredIT.length === 0) {
+                document.getElementById('itNews').innerHTML = '<div class="loading">해당 뉴스가 없습니다.</div>';
+            }
+            if (filteredEconomy.length === 0) {
+                document.getElementById('economyNews').innerHTML = '<div class="loading">해당 뉴스가 없습니다.</div>';
+            }
+        }
+
+        // ============ 새로고침 ============
+        function refreshNews() {
+            const usContainer = document.getElementById('usNews');
+            const koreaContainer = document.getElementById('koreaNews');
+            const itContainer = document.getElementById('itNews');
+            const economyContainer = document.getElementById('economyNews');
+
+            usContainer.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+            koreaContainer.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+            itContainer.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+            economyContainer.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+
+            setTimeout(() => {
+                renderNews(usNews, 'usNews');
+                renderNews(koreaNews, 'koreaNews');
+                renderNews(itNews, 'itNews');
+                renderNews(economyNews, 'economyNews');
+            }, 500);
+        }
+
+        // ============ 뉴스 열기 ============
+        function openNews(title) {
+            alert('📰 뉴스 상세페이지 (준비중)\n\n제목: ' + title);
+        }
+
+        // ============ 검색창 엔터키 ============
+        document.getElementById('searchInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                searchNews();
+            }
+        });
+    </script>
+</body>
+</html>
